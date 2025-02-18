@@ -1,0 +1,5 @@
+# Node dependency directory
+node_modules/
+
+# Output image directory
+output/

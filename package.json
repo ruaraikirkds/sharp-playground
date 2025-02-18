@@ -1,0 +1,14 @@
+{
+  "name": "sharp-playground",
+  "version": "1.0.0",
+  "description": "Small project to test and play with the sharp image package",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "sharp": "^0.33.5"
+  }
+}
