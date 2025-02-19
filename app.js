@@ -6,8 +6,8 @@ const fs = require("fs");
 
     try {
         const imageScale = 1; // 0.41;
-        const width = 1250; // 1250;
-        const height = 834; // 834;
+        const width = 600; // 1250;
+        const height = 600; // 834;
         const imageOffsetX = 0; // -104;
         const imageOffsetY = 0;// -168;
         const rotation = 89;
@@ -59,7 +59,27 @@ const fs = require("fs");
         const { width: resizedOverlayWidth, height: resizedOverlayHeight }  = resizedOverlayMetadata;
         if (!resizedOverlayWidth || !resizedOverlayHeight) throw new Error("Invalid resized image metadata");
 
-        await background
+        // await background
+        //     .composite([
+        //         {
+        //             input: resizedOverlay,
+        //             top: Math.floor(backgroundHeight / 2) - Math.floor(resizedOverlayHeight / 2) - imageOffsetY , // Positioning
+        //             left: Math.floor(backgroundWidth / 2) - Math.floor(resizedOverlayWidth / 2) + imageOffsetX,
+        //         },
+        //     ])
+        //     .raw()
+        //     .extract({
+        //         height,
+        //         top: Math.floor(backgroundHeight / 2) - Math.floor(height / 2), // Positioning
+        //         left: Math.floor(backgroundWidth / 2) - Math.floor(width / 2),
+        //         // left: Math.round(backgroundWidth / 2 - width / 2),
+        //         // top: Math.round(backgroundHeight / 2 - height / 2),
+        //         width,
+        //     })
+        //     .toFormat('png')
+        //     .toFile("output/edited-custom-bmw-k75-cafe-racer.png");
+
+        const preFinalSize = await background
             .composite([
                 {
                     input: resizedOverlay,
@@ -67,8 +87,16 @@ const fs = require("fs");
                     left: Math.floor(backgroundWidth / 2) - Math.floor(resizedOverlayWidth / 2) + imageOffsetX,
                 },
             ])
-            // .extract({top: , left: , width: , height})
             .toFormat('png')
+            .toBuffer()
+
+        await sharp(preFinalSize)
+            .extract({
+                height,
+                top: Math.floor(backgroundHeight / 2) - Math.floor(height / 2),
+                left: Math.floor(backgroundWidth / 2) - Math.floor(width / 2),
+                width,
+            })
             .toFile("output/edited-custom-bmw-k75-cafe-racer.png");
     } catch (error) {
         console.log(error);
