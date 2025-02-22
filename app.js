@@ -8,7 +8,7 @@ const fs = require("fs");
           height: 600,
           imageOffsetX: 0,
           imageOffsetY: 0,
-          imageRotation: 45,
+          imageRotation: 0,
           imageScale: 0.5,
           width: 600,
         }
