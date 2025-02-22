@@ -5,21 +5,21 @@ const fs = require("fs");
 (async function () {
     try {
         const imageOptions = {
-            height: 720,
+            height: 600,
             imageOffsetX: 0,
             imageOffsetY: 0,
-            imageRotation: 0,
-            imageScale: 2,
-            width: 720,
+            imageRotation: 20.1111,
+            imageScale: 1,
+            width: 600,
         }
         // Get the original image
         console.time('imageObject')
-        const imageObject = await sharp("images/4k-test-unsplash.jpg", { limitInputPixels: false })
-        console.end('imageObject')
+        const imageObject = await sharp("images/custom-bmw-k75-cafe-racer.jpg", { limitInputPixels: false })
+        console.timeEnd('imageObject')
         // Get original image metadata
         console.time('imageObjectMetadata')
         const imageObjectMetadata = await imageObject.metadata();
-        console.end('imageObjectMetadata')
+        console.timeEnd('imageObjectMetadata')
         const { height: originalImageHeight, width: originalImageWidth } = imageObjectMetadata;
         if (!originalImageWidth || !originalImageHeight) {
             throw new Error('Invalid image metadata');
@@ -60,17 +60,17 @@ const fs = require("fs");
         // Create "overlay" image which will be placed on the working background
         console.time('overlay')
         const overlay = await imageObject.toFormat('png').toBuffer(); // Convert to buffer for compositing
-        console.end('overlay')
+        console.timeEnd('overlay')
         console.time('overlayMetadata')
         const overlayMetadata = await await sharp(overlay, { limitInputPixels: false }).metadata();
-        console.end('overlayMetadata')
+        console.timeEnd('overlayMetadata')
         const { height: resizedOverlayHeight, width: resizedOverlayWidth } = overlayMetadata;
         if (!resizedOverlayWidth || !resizedOverlayHeight) {
             throw new Error('Invalid resized image metadata');
         }
 
         // Create a transparent background with large working area
-        const maxBackgroundDimension = Math.round(Math.sqrt(Math.pow(scaledWidth, 2) + Math.pow(scaledWidth, 2)));
+        const maxBackgroundDimension = Math.round(Math.sqrt(Math.pow(scaledWidth, 2) + Math.pow(scaledHeight, 2)));
         // const maxBackgroundDimension = Math.round(Math.max(scaledWidth, scaledHeight, imageOptions.width, imageOptions.height) * 1.5);
 
         console.log('✅', {
@@ -107,35 +107,35 @@ const fs = require("fs");
                         horizontally aligned, with the centre of the background image.
                     */
                     left:
-                        Math.floor(backgroundWidth / 2) -
+                        Math.round(Math.floor(backgroundWidth / 2) -
                         Math.floor(resizedOverlayWidth / 2) +
-                        imageOptions.imageOffsetX,
+                        imageOptions.imageOffsetX),
                     /*
                         Defines the position of the overlay image from the top of the background.
                         It is set so that if imageOffsetY is set to 0, the centre of the overlay is
                         vertically aligned, with the centre of the background image.
                     */
                     top:
-                        Math.floor(backgroundHeight / 2) -
+                        Math.round(Math.floor(backgroundHeight / 2) -
                         Math.floor(resizedOverlayHeight / 2) -
-                        imageOptions.imageOffsetY,
+                        imageOptions.imageOffsetY),
                 },
             ])
             .toFormat('png') // All transformed images will be png for transparent background, maybe dynamic in future
             .toBuffer();
-        console.end('preFinalSize')
+        console.timeEnd('preFinalSize')
 
         // Save result
         console.time('final')
         await sharp(preFinalSize, { limitInputPixels: false })
             .extract({
-                height: imageOptions.height,
-                left: Math.floor(backgroundWidth / 2) - Math.floor(imageOptions.width / 2),
-                top: Math.floor(backgroundHeight / 2) - Math.floor(imageOptions.height / 2),
-                width: imageOptions.width,
+                height: Math.round(imageOptions.height),
+                left: Math.round(Math.floor(backgroundWidth / 2) - Math.floor(imageOptions.width / 2)),
+                top: Math.round(Math.floor(backgroundHeight / 2) - Math.floor(imageOptions.height / 2)),
+                width: Math.round(imageOptions.width),
             })
-            .toFile("output/edited-4k-test-unsplash.jpg");
-        console.end('final')
+            .toFile("output/custom-bmw-k75-cafe-racer.jpg");
+        console.timeEnd('final')
     } catch (error) {
         console.log('💥', {
             error
