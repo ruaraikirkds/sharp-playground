@@ -9,7 +9,7 @@ const fs = require("fs");
           imageOffsetX: 0,
           imageOffsetY: 0,
           imageRotation: 45,
-          imageScale: 1,
+          imageScale: 0.5,
           width: 600,
         }
         // Get the original image
@@ -134,6 +134,7 @@ const fs = require("fs");
                 top: Math.round(Math.floor(backgroundHeight / 2) - Math.floor(imageOptions.height / 2)),
                 width: Math.round(imageOptions.width),
             })
+            .toFormat('png') 
             .toFile("output/edited-custom-bmw-k75-cafe-racer.jpg");
         console.timeEnd('final')
     } catch (error) {
