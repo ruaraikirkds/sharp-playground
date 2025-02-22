@@ -5,12 +5,12 @@ const fs = require("fs");
 (async function () {
     try {
         const imageOptions = {
-            height: 600,
-            imageOffsetX: 0,
-            imageOffsetY: 0,
-            imageRotation: 20.1111,
-            imageScale: 1,
-            width: 600,
+          height: 600,
+          imageOffsetX: 0,
+          imageOffsetY: 0,
+          imageRotation: 45,
+          imageScale: 1,
+          width: 600,
         }
         // Get the original image
         console.time('imageObject')
@@ -134,7 +134,7 @@ const fs = require("fs");
                 top: Math.round(Math.floor(backgroundHeight / 2) - Math.floor(imageOptions.height / 2)),
                 width: Math.round(imageOptions.width),
             })
-            .toFile("output/custom-bmw-k75-cafe-racer.jpg");
+            .toFile("output/edited-custom-bmw-k75-cafe-racer.jpg");
         console.timeEnd('final')
     } catch (error) {
         console.log('💥', {
