@@ -157,45 +157,66 @@ async function processImage(input, output, imageOptions) {
 }
 
 async function processImage2(input, output, imageOptions) {
+  const {
+    width,
+    height,
+    imageOffsetX,
+    imageOffsetY,
+    imageRotation,
+    imageScale,
+  } = imageOptions;
+
   try {
     console.time("total");
-    const {
-      width,
-      height,
-      imageOffsetX,
-      imageOffsetY,
-      imageRotation,
-      imageScale,
-    } = imageOptions;
+    const image = sharp(input).png();
 
-    const metadata = await sharp(input).metadata();
-    const originalWidth = metadata.width;
-    const originalHeight = metadata.height;
+    const metadata = await image.metadata();
 
-    const scaledWidth = Math.round(originalWidth * imageScale);
-    const scaledHeight = Math.round(originalHeight * imageScale);
+    const scaledWidth = Math.round(metadata.width * imageScale);
+    const scaledHeight = Math.round(metadata.height * imageScale);
 
-    await sharp(input)
+    const buffer = await image.resize(scaledWidth, scaledHeight).toBuffer();
+
+    const transformedImage = sharp(buffer).png();
+
+    const radians = (Math.PI / 180) * imageRotation;
+    const rotatedWidth =
+      Math.abs(scaledWidth * Math.cos(radians)) +
+      Math.abs(scaledHeight * Math.sin(radians));
+    const rotatedHeight =
+      Math.abs(scaledHeight * Math.cos(radians)) +
+      Math.abs(scaledWidth * Math.sin(radians));
+
+    const centerX = Math.round(rotatedWidth / 2 - imageOffsetX);
+    const centerY = Math.round(rotatedHeight / 2 + imageOffsetY);
+
+    const extendedImage = await transformedImage
       .rotate(imageRotation, { background: { r: 0, g: 0, b: 0, alpha: 0 } })
-      .resize(scaledWidth, scaledHeight)
       .extend({
-        top: Math.max(0, Math.round((height - scaledHeight) / 2)),
-        bottom: Math.max(0, Math.round((height - scaledHeight) / 2)),
-        left: Math.max(0, Math.round((width - scaledWidth) / 2)),
-        right: Math.max(0, Math.round((width - scaledWidth) / 2)),
+        top: Math.max(0, Math.round(height / 2) - centerY),
+        bottom: Math.max(
+          0,
+          Math.round(centerY + height / 2) - Math.round(rotatedHeight)
+        ),
+        left: Math.max(0, Math.round(width / 2) - centerX),
+        right: Math.max(
+          0,
+          Math.round(centerX + width / 2) - Math.round(rotatedWidth)
+        ),
         background: { r: 0, g: 0, b: 0, alpha: 0 },
       })
+      .toBuffer();
+
+    await sharp(extendedImage)
       .extract({
-        left: Math.max(0, Math.round((scaledWidth - width) / 2 + imageOffsetX)),
-        top: Math.max(
-          0,
-          Math.round((scaledHeight - height) / 2 - imageOffsetY)
-        ),
-        width: Math.min(width, scaledWidth),
-        height: Math.min(height, scaledHeight),
+        left: Math.max(0, centerX - Math.round(width / 2)),
+        top: Math.max(0, centerY - Math.round(height / 2)),
+        width: width,
+        height: height,
       })
-      .png({ transparent: true })
+      .png()
       .toFile(output);
+
     console.timeEnd("total");
   } catch (error) {
     console.log("💥", {
@@ -206,15 +227,15 @@ async function processImage2(input, output, imageOptions) {
 
 const imageOptions = {
   height: 600,
-  imageOffsetX: 0, // Positive right, negative left
+  imageOffsetX: -200, // Positive right, negative left
   imageOffsetY: 0, // Positive up, negative down
-  imageRotation: 45,
-  imageScale: 1.7, // Max 2
+  imageRotation: -20,
+  imageScale: 0.5, // Max 2
   width: 600,
 };
 
-const input = "images/4k-test-unsplash.jpg";
-const output = "output/edited-4k-test-unsplash2.png";
+const input = "images/custom-bmw-k75-cafe-racer.jpg";
+const output = "output/edited-custom-bmw-k75-cafe-racer.png";
 
 // Usage
 // processImage(
